@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from './node_modules/axios/dist/axios';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
@@ -152,10 +152,4 @@ function notification() {
 
 function scroll() {
   const listItem = document.querySelector('.gallery-item');
-  const heightScroll = listItem.getBoundingClientRect().height * 2;
-  window.scrollBy({
-    top: heightScroll,
-    left: 0,
-    behavior: 'smooth',
-  });
-}
+  const heightScroll = listIt
