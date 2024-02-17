@@ -146,5 +146,18 @@ function renderPhotos(photos) {
   galleryLightbox.refresh();
 }
 
-
 loadBtn.style.visibility = 'hidden';
+//---
+function maxPhotos(photos) {
+  if (per_page * page >= totalHids) {
+    iziToast.show({
+      message:
+        'Sorry, there are no more images to show on this page!',
+      backgroundColor: 'red',
+      messageColor: 'white',
+      messageSize: '25',
+    });
+    loadBtn.style.visibility = 'hidden';
+  } else {
+    loadBtn.style.visibility = 'visible';
+  }
