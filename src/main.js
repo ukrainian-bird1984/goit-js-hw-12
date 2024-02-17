@@ -90,6 +90,7 @@ function showError(message) {
   iziToast.show({
     title: 'Error',
     message,
+    position: 'center', 
   });
 }
 
@@ -118,6 +119,8 @@ function makeMarkup(
 }
 
 function renderPhotos(photos) {
+  gallery.innerHTML = ''; 
+
   if (photos.length === 0) {
     showError('Sorry, there are no images matching your search query. Please try again!');
   }
@@ -149,10 +152,25 @@ function renderPhotos(photos) {
 }
 
 function showLoadBtn() {
-  if (page * 15 < totalHits) {
+  if (page * 15 < totalHits && page <= Math.ceil(totalHits / 15)) {
     loadBtn.style.visibility = 'visible';
   } else {
     loadBtn.style.visibility = 'hidden';
     showError('Cannot visualize more images');
   }
 }
+
+
+searchInput.addEventListener('input', clearError);
+
+function clearError() {
+  const errorMessage = document.querySelector('.iziToast');
+  if (errorMessage) {
+    errorMessage.remove();
+  }
+}
+
+form.addEventListener('submit', () => {
+  clearError();
+  searchInput.value = searchInput.value.trim(); 
+});
