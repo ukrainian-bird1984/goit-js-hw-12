@@ -27,6 +27,7 @@ const gallery = document.querySelector('.gallery');
 const loadBtn = document.querySelector('.load-btn');
 let page = 1;
 let currentSearchQuery = '';
+let totalHits = 0;
 
 form.addEventListener('submit', getPhoto);
 
@@ -36,10 +37,7 @@ async function getPhoto(event) {
   const searchQuery = searchInput.value.trim();
 
   if (searchQuery === '') {
-    iziToast.show({
-      title: 'Error',
-      message: 'Please enter a search query',
-    });
+    showError('Please enter a search query');
     return;
   }
 
@@ -52,11 +50,14 @@ async function getPhoto(event) {
 
   try {
     const response = await axios.get('/api/', {
-      params: { q: searchQuery },
+      params: { q: searchQuery, page },
     });
+
     const data = response.data;
+    totalHits = data.totalHits;
     renderPhotos(data.hits);
   } catch (error) {
+    showError('Error fetching data');
     console.log('Error fetching data:', error);
   } finally {
     loader.classList.remove('visible');
@@ -72,15 +73,24 @@ async function onLoadMoreClick() {
 
   try {
     const response = await axios.get('/api/', {
-      params: { q: searchQuery, page: (page += 1) },
+      params: { q: searchQuery, page: page + 1 },
     });
     const data = response.data;
     renderPhotos(data.hits);
+    page += 1;
   } catch (error) {
-    console.log('Error fetching data:', error);
+    showError('Error fetching more data');
+    console.log('Error fetching more data:', error);
   } finally {
     loader.classList.remove('visible');
   }
+}
+
+function showError(message) {
+  iziToast.show({
+    title: 'Error',
+    message,
+  });
 }
 
 function makeMarkup(
@@ -93,33 +103,25 @@ function makeMarkup(
   downloads
 ) {
   return `<li class="photo">
-  <div class="photo-card">
-    <a class="image-link" data-lightbox="image" href="${largeImageURL}">
-    <img class="gallery-image" data-source="${largeImageURL}"  src="${webformatURL}" alt="${tags}"></img>
-    </a>
+    <div class="photo-card">
+      <a class="image-link" data-lightbox="image" href="${largeImageURL}">
+        <img class="gallery-image" data-source="${largeImageURL}" src="${webformatURL}" alt="${tags}"></img>
+      </a>
     </div>
-      <div class="description">
-        <p class="description-item"> Likes ${likes}</p>
-        <p class="description-item"> Views ${views}</p>
-        <p class="description-item"> Comments ${comments}</p>
-        <p class="description-item"> Downloads ${downloads}</p>
-
+    <div class="description">
+      <p class="description-item"> Likes ${likes}</p>
+      <p class="description-item"> Views ${views}</p>
+      <p class="description-item"> Comments ${comments}</p>
+      <p class="description-item"> Downloads ${downloads}</p>
     </div>
   </li>`;
 }
 
 function renderPhotos(photos) {
-  gallery.innerHTML = '';
-
   if (photos.length === 0) {
-    iziToast.show({
-      message:
-        'Sorry, there are no images matching your search query. Please try again!',
-      backgroundColor: 'red',
-      messageColor: 'white',
-      messageSize: '25',
-    });
+    showError('Sorry, there are no images matching your search query. Please try again!');
   }
+
   photos.forEach(photo => {
     const {
       webformatURL,
@@ -147,5 +149,10 @@ function renderPhotos(photos) {
 }
 
 function showLoadBtn() {
-  loadBtn.style.visibility = 'visible';
+  if (page * 15 < totalHits) {
+    loadBtn.style.visibility = 'visible';
+  } else {
+    loadBtn.style.visibility = 'hidden';
+    showError('Cannot visualize more images');
+  }
 }
