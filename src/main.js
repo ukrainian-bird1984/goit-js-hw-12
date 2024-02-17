@@ -160,7 +160,6 @@ function showLoadBtn() {
   }
 }
 
-
 searchInput.addEventListener('input', clearError);
 
 function clearError() {
