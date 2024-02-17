@@ -72,7 +72,7 @@ async function onLoadMoreClick() {
 
   try {
     const response = await axios.get('/api/', {
-      params: { q: searchQuery, page: (page += 1) },
+      params: { q: searchQuery, page: ++page },
     });
     const data = response.data;
     renderPhotos(data.hits);
@@ -148,8 +148,8 @@ function renderPhotos(photos) {
 
 loadBtn.style.visibility = 'hidden';
 //---
-function maxPhotos(photos) {
-  if (per_page * page >= totalHids) {
+function maxPhotos(data) {
+  if (axios.defaults.params.per_page * page >= data.totalHits) {
     iziToast.show({
       message:
         'Sorry, there are no more images to show on this page!',
@@ -161,3 +161,4 @@ function maxPhotos(photos) {
   } else {
     loadBtn.style.visibility = 'visible';
   }
+}
