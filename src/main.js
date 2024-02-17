@@ -15,7 +15,7 @@ const axios = Axios.create({
     page: 1,
   },
 });
-
+//---
 let galleryLightbox = new SimpleLightbox('.image-link', {
   captionsData: 'alt',
   captionDelay: 250,
