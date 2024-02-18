@@ -1,14 +1,28 @@
-import{A as S,S as q,i as l}from"./assets/vendor-db5ad915.js";(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))i(e);new MutationObserver(e=>{for(const o of e)if(o.type==="childList")for(const n of o.addedNodes)n.tagName==="LINK"&&n.rel==="modulepreload"&&i(n)}).observe(document,{childList:!0,subtree:!0});function r(e){const o={};return e.integrity&&(o.integrity=e.integrity),e.referrerPolicy&&(o.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?o.credentials="include":e.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function i(e){if(e.ep)return;e.ep=!0;const o=r(e);fetch(e.href,o)}})();const C=document.querySelector(".form"),g=document.querySelector(".input-name"),d=document.querySelector(".loader"),h=document.querySelector(".gallery"),m=document.querySelector(".load-btn");let p="",a=0,c=0,f=1;const y=S.create({baseURL:"https://pixabay.com",params:{key:"42310325-d8e2b88bd4f4d7db9639050a5",image_type:"photo",orientation:"horizontal",safesearch:!0,per_page:15,page:1}});let E=new q(".image-link",{captionsData:"alt",captionDelay:250});C.addEventListener("submit",O);m.addEventListener("click",$);async function O(s){s.preventDefault();const t=g.value.trim();if(t===""){l.show({title:"Error",message:"Please enter a search query"});return}h.innerHTML="",f=1,a=0,p=t,u(),d.classList.add("visible");try{const i=(await y.get("/api/",{params:{q:t}})).data;c=i.totalHits,a=b(i.hits,c,a)}catch(r){console.log("Error fetching data:",r),l.show({title:"Error",message:"Oops, something went wrong"})}finally{d.classList.remove("visible")}}function b(s){if(s.length===0){l.show({message:"Sorry, there are no images matching your search query. Please try again!",backgroundColor:"red",messageColor:"white",messageSize:"25"});return}return s.forEach(t=>{const{webformatURL:r,largeImageURL:i,tags:e,likes:o,views:n,comments:w,downloads:v}=t,L=P(r,i,e,o,n,w,v);h.insertAdjacentHTML("beforeend",L)}),a+=s.length,E.refresh(),k(a,c),a}function P(s,t,r,i,e,o,n){return`<li class="photo">
-  <div class="photo-card">
-    <a class="image-link" data-lightbox="image" href="${t}">
-    <img class="gallery-image" data-source="${t}"  src="${s}" alt="${r}"></img>
-    </a>
-    </div>
-      <div class="description">
-        <p class="description-item"> Likes ${i}</p>
-        <p class="description-item"> Views ${e}</p>
-        <p class="description-item"> Comments ${o}</p>
-        <p class="description-item"> Downloads ${n}</p>
-    </div>
-  </li>`}async function $(){u(),d.classList.add("visible");const s=g.value.trim();try{const r=(await y.get("/api/",{params:{q:s,page:f+=1}})).data;c=r.totalHits,a=b(r.hits,c,a),x()}catch(t){console.log("Error fetching data:",t),l.show({title:"Error",message:"Oops, something went wrong"})}finally{d.classList.remove("visible")}}function k(s,t){s>=t?p===""?(l.show({message:"We're sorry, but you've reached the end of search results.",backgroundColor:"#125487",messageColor:"white",messageSize:"25"}),u()):(u(),l.show({message:"Cannot load more images. You've reached the limit.",backgroundColor:"#125487",messageColor:"white",messageSize:"25"})):H()}function x(){const s=document.querySelector(".photo").getBoundingClientRect().height;window.scrollBy({top:s*2,behavior:"smooth"})}function H(){m.style.visibility="visible"}function u(){m.style.visibility="hidden"}
+import{a as f,i as d,S as p}from"./assets/vendor-b42c18af.js";(function(){const o=document.createElement("link").relList;if(o&&o.supports&&o.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))r(e);new MutationObserver(e=>{for(const s of e)if(s.type==="childList")for(const l of s.addedNodes)l.tagName==="LINK"&&l.rel==="modulepreload"&&r(l)}).observe(document,{childList:!0,subtree:!0});function n(e){const s={};return e.integrity&&(s.integrity=e.integrity),e.referrerPolicy&&(s.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?s.credentials="include":e.crossOrigin==="anonymous"?s.credentials="omit":s.credentials="same-origin",s}function r(e){if(e.ep)return;e.ep=!0;const s=n(e);fetch(e.href,s)}})();const y={form:document.querySelector(".form"),gallery:document.querySelector(".gallery"),loader:document.querySelector(".loader"),btnElem:document.querySelector(".btn")},{form:L,gallery:u,loader:c,btnElem:i}=y;c.classList.add("hidden");const a={key:"42200022-9c7e7676f0f903944c054771a",image_type:"photo",orientation:"horizontal",safesearch:!0,per_page:15,page:1,totalResults:0,q:""};L.addEventListener("submit",async t=>{if(t.preventDefault(),a.q=t.target.elements.input.value,!a.q)return;u.innerHTML="",c.classList.remove("hidden"),a.page=1;const o=await m();a.totalResults=o.totalHits,h(o),g(),t.target.reset()});i.addEventListener("click",async()=>{a.page+=1;const t=await m();h(t),g(),window.scrollBy({top:465,behavior:"smooth"})});async function m(){const t=new URLSearchParams(a);return(await f.get(`https://pixabay.com/api/?${t}`)).data}function h(t){if(t.hits.length===0)d.show({message:"Sorry, there are no images matching your search query. Please try again!",backgroundColor:"#125487",messageColor:"white",messageSize:"25"}),i.classList.add("hidden");else{const n=t.hits.map(r=>`<a class="gallery-link" href="${r.largeImageURL}">
+<img class="gallery-image"
+src="${r.webformatURL}"
+alt="${r.tags}"
+</a>
+<div class="img-content">
+<div>
+<h3>Likes</h3>
+<p>${r.likes}</p>
+</div>
+
+<div>
+<h3>Views</h3>
+<p>${r.views}</p>
+</div>
+
+<div>
+<h3>Comments</h3>
+<p>${r.comments}</p>
+</div>
+
+<div>
+<h3>Downloads</h3>
+<p>${r.downloads}</p>
+</div>
+</div>
+`).join("");u.insertAdjacentHTML("beforeend",n),i.classList.remove("hidden")}new p(".gallery-link").refresh(),c.classList.add("hidden")}function g(){Math.ceil(a.totalResults/a.per_page)===a.page&&(i.classList.add("hidden"),d.show({message:"We're sorry, but you've reached the end of search results.",backgroundColor:"#125487",messageColor:"white",messageSize:"25"}))}
 //# sourceMappingURL=commonHelpers.js.map
