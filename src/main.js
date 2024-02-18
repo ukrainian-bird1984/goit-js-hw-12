@@ -50,6 +50,7 @@ async function getPhoto(event) {
   gallery.innerHTML = '';
   page = 1;
   totalResult = 0;
+  currentSearchQuery = searchQuery; // Зберігаємо поточний пошуковий запит
   hideLoadBtn();
   loader.classList.add('visible');
 
@@ -152,7 +153,6 @@ async function onLoadMoreClick() {
     totalHits = data.totalHits;
     totalResult = renderPhotos(data.hits, totalHits, totalResult);
     smoothScrollToNextGallery();
-    isLoadMore(totalResult, totalHits);
   } catch (error) {
     console.log('Error fetching data:', error);
     iziToast.show({
