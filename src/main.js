@@ -4,6 +4,16 @@ import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
 import Axios from 'axios';
 
+const form = document.querySelector('.form');
+const searchInput = document.querySelector('.input-name');
+const loader = document.querySelector('.loader');
+const gallery = document.querySelector('.gallery');
+const loadBtn = document.querySelector('.load-btn');
+let currentSearchQuery = '';
+let totalResult = 0;
+let totalHits = 0;
+let page = 1;
+
 const axios = Axios.create({
   baseURL: 'https://pixabay.com',
   params: {
@@ -11,7 +21,7 @@ const axios = Axios.create({
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    per_page: 29, // Set the maximum number of images to 29
+    per_page: 15,
     page: 1,
   },
 });
@@ -21,14 +31,6 @@ let galleryLightbox = new SimpleLightbox('.image-link', {
   captionDelay: 250,
 });
 
-const form = document.querySelector('.form');
-const searchInput = document.querySelector('.input-name');
-const loader = document.querySelector('.loader');
-const gallery = document.querySelector('.gallery');
-const loadBtn = document.querySelector('.load-btn');
-let page = 1;
-let currentSearchQuery = '';
-
 form.addEventListener('submit', getPhoto);
 loadBtn.addEventListener('click', onLoadMoreClick);
 
@@ -36,8 +38,6 @@ async function getPhoto(event) {
   event.preventDefault();
 
   const searchQuery = searchInput.value.trim();
-
-  gallery.innerHTML = '';
 
   if (searchQuery === '') {
     iziToast.show({
@@ -47,43 +47,70 @@ async function getPhoto(event) {
     return;
   }
 
+  gallery.innerHTML = '';
+  page = 1;
+  totalResult = 0;
+  hideLoadBtn();
   loader.classList.add('visible');
 
   try {
     const response = await axios.get('/api/', {
-      params: { q: searchQuery, page },
+      params: { q: searchQuery },
     });
     const data = response.data;
-    renderPhotos(data.hits);
+    totalHits = data.totalHits;
+    totalResult = renderPhotos(data.hits, totalHits, totalResult);
   } catch (error) {
-    iziToast.error({
-      title: 'Error fetching data',
-      message: 'An error occurred while fetching data. Please try again later.',
+    console.log('Error fetching data:', error);
+    iziToast.show({
+      title: 'Error',
+      message: 'Oops, something went wrong',
     });
   } finally {
     loader.classList.remove('visible');
   }
 }
 
-async function onLoadMoreClick() {
-  const searchQuery = currentSearchQuery;
-
-  loader.classList.add('visible');
-
-  try {
-    const response = await axios.get('/api/', {
-      params: { q: searchQuery, page: ++page },
+function renderPhotos(photos) {
+  if (photos.length === 0) {
+    iziToast.show({
+      message:
+        'Sorry, there are no images matching your search query. Please try again!',
+      backgroundColor: 'red',
+      messageColor: 'white',
+      messageSize: '25',
     });
-    const data = response.data;
-    renderPhotos(data.hits);
-  } catch (error) {
-    iziToast.error({
-      title: 'Error fetching data',
-      message: 'An error occurred while fetching data. Please try again later.',
-    });
-  } finally {
-    loader.classList.remove('visible');
+    return;
   }
+
+  photos.forEach(photo => {
+    const {
+      webformatURL,
+      largeImageURL,
+      tags,
+      likes,
+      views,
+      comments,
+      downloads,
+    } = photo;
+    const photoElement = makeMarkup(
+      webformatURL,
+      largeImageURL,
+      tags,
+      likes,
+      views,
+      comments,
+      downloads
+    );
+    gallery.insertAdjacentHTML('beforeend', photoElement);
+  });
+
+  totalResult += photos.length;
+
+  galleryLightbox.refresh();
+
+  isLoadMore(totalResult, totalHits);
+  return totalResult;
 }
 
 function makeMarkup(
@@ -96,67 +123,82 @@ function makeMarkup(
   downloads
 ) {
   return `<li class="photo">
-    <div class="photo-card">
-      <a class="image-link" data-lightbox="image" href="${largeImageURL}">
-        <img class="gallery-image" data-source="${largeImageURL}" src="${webformatURL}" alt="${tags}"></img>
-      </a>
+  <div class="photo-card">
+    <a class="image-link" data-lightbox="image" href="${largeImageURL}">
+    <img class="gallery-image" data-source="${largeImageURL}"  src="${webformatURL}" alt="${tags}"></img>
+    </a>
     </div>
-    <div class="description">
-      <p class="description-item"> Likes ${likes}</p>
-      <p class="description-item"> Views ${views}</p>
-      <p class="description-item"> Comments ${comments}</p>
-      <p class="description-item"> Downloads ${downloads}</p>
+      <div class="description">
+        <p class="description-item"> Likes ${likes}</p>
+        <p class="description-item"> Views ${views}</p>
+        <p class="description-item"> Comments ${comments}</p>
+        <p class="description-item"> Downloads ${downloads}</p>
     </div>
   </li>`;
 }
 
-function renderPhotos(photos) {
-  resetForm();
+async function onLoadMoreClick() {
+  hideLoadBtn();
+  loader.classList.add('visible');
 
-  if (photos.length === 0 && page === 1) {
+  const searchQuery = searchInput.value.trim();
+
+  try {
+    const response = await axios.get('/api/', {
+      params: { q: searchQuery, page: (page += 1) },
+    });
+    const data = response.data;
+
+    totalHits = data.totalHits;
+    totalResult = renderPhotos(data.hits, totalHits, totalResult);
+    smoothScrollToNextGallery();
+    isLoadMore(totalResult, totalHits);
+  } catch (error) {
+    console.log('Error fetching data:', error);
     iziToast.show({
-      message:
-        'Sorry, there are no images matching your search query. Please try again!',
-      backgroundColor: 'red',
-      messageColor: 'white',
-      messageSize: '25',
+      title: 'Error',
+      message: 'Oops, something went wrong',
     });
-    loadBtn.style.visibility = 'hidden';
-  } else {
-    if (photos.length < 29) {
-      loadBtn.style.visibility = 'hidden';
-    } else {
-      loadBtn.style.visibility = 'visible';
-    }
-
-    photos.slice(0, 29).forEach(photo => {
-      const {
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads,
-      } = photo;
-      const photoElement = makeMarkup(
-        webformatURL,
-        largeImageURL,
-        tags,
-        likes,
-        views,
-        comments,
-        downloads
-      );
-      gallery.insertAdjacentHTML('beforeend', photoElement);
-    });
+  } finally {
+    loader.classList.remove('visible');
   }
-
-  galleryLightbox.refresh();
 }
 
-function resetForm() {
-  form.reset();
+function isLoadMore(totalResult, totalHits) {
+  if (totalResult >= totalHits) {
+    if (currentSearchQuery === '') {
+      iziToast.show({
+        message: "We're sorry, but you've reached the end of search results.",
+        backgroundColor: '#125487',
+        messageColor: 'white',
+        messageSize: '25',
+      });
+      hideLoadBtn();
+    } else {
+      hideLoadBtn();
+      iziToast.show({
+        message: "Cannot load more images. You've reached the limit.",
+        backgroundColor: '#125487',
+        messageColor: 'white',
+        messageSize: '25',
+      });
+    }
+  } else {
+    showLoadBtn();
+  }
 }
 
-loadBtn.style.visibility = 'hidden';
+function smoothScrollToNextGallery() {
+  const galleryItemHeight = document
+    .querySelector('.photo')
+    .getBoundingClientRect().height;
+  window.scrollBy({ top: galleryItemHeight * 2, behavior: 'smooth' });
+}
+
+function showLoadBtn() {
+  loadBtn.style.visibility = 'visible';
+}
+
+function hideLoadBtn() {
+  loadBtn.style.visibility = 'hidden';
+}
