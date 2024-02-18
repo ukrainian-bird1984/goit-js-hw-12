@@ -147,18 +147,15 @@ function renderPhotos(photos) {
 }
 
 loadBtn.style.visibility = 'hidden';
-//---
-function maxPhotos(data) {
-  if (axios.defaults.params.per_page * page >= data.totalHits) {
-    iziToast.show({
-      message:
-        'Sorry, there are no more images to show on this page!',
-      backgroundColor: 'red',
-      messageColor: 'white',
-      messageSize: '25',
-    });
-    loadBtn.style.visibility = 'hidden';
-  } else {
-    loadBtn.style.visibility = 'visible';
-  }
-}
+
+const totalPages = Math.ceil(images.totalHits / perPage);
+
+    if (currentPage >= totalPages) {
+      loadMoreBtn.style.display = 'none';
+      return iziToast.info({
+        position: 'topRight',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    } else {
+      loadMoreBtn.style.display = 'block';
+    }
