@@ -1,204 +1,105 @@
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import Axios from 'axios';
 
-const form = document.querySelector('.form');
-const searchInput = document.querySelector('.input-name');
-const loader = document.querySelector('.loader');
-const gallery = document.querySelector('.gallery');
-const loadBtn = document.querySelector('.load-btn');
-let currentSearchQuery = '';
-let totalResult = 0;
-let totalHits = 0;
-let page = 1;
+import { fetchImagesParams } from './js/api/fetchImages';
+import { toastError, toastSuccess, toastWarning } from './js/components/toast';
+import createGallery from './js/components/gallery';
+import selector from './js/components/selector';
+import { fetchImages } from './js/api/fetchImages';
+import { GALLERY_LINK } from './js/constants/classes';
 
-const axios = Axios.create({
-  baseURL: 'https://pixabay.com',
-  params: {
-    key: '42310325-d8e2b88bd4f4d7db9639050a5',
-    image_type: 'photo',
-    orientation: 'horizontal',
-    safesearch: true,
-    per_page: 15,
-    page: 1,
-  },
+let total;
+let endOfPageElement;
+
+const observer = new IntersectionObserver(handleIntersection, {
+  threshold: 0,
 });
 
-let galleryLightbox = new SimpleLightbox('.image-link', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
-
-form.addEventListener('submit', getPhoto);
-loadBtn.addEventListener('click', onLoadMoreClick);
-
-async function getPhoto(event) {
+selector.searchForm.addEventListener('submit', async function (event) {
   event.preventDefault();
+  fetchImagesParams.q = event.target.elements.query.value;
 
-  const searchQuery = searchInput.value.trim();
-
-  if (searchQuery === '') {
-    iziToast.show({
-      title: 'Error',
-      message: 'Please enter a search query',
-    });
+  if (fetchImagesParams.q === '') {
     return;
   }
 
-  gallery.innerHTML = '';
-  page = 1;
-  totalResult = 0;
-  currentSearchQuery = searchQuery; // Зберігаємо поточний пошуковий запит
-  hideLoadBtn();
-  loader.classList.add('visible');
+  selector.galleryContainer.innerHTML = '';
+  selector.loaderContainer.style.display = 'block';
 
   try {
-    const response = await axios.get('/api/', {
-      params: { q: searchQuery },
-    });
-    const data = response.data;
-    totalHits = data.totalHits;
-    totalResult = renderPhotos(data.hits, totalHits, totalResult);
-  } catch (error) {
-    console.log('Error fetching data:', error);
-    iziToast.show({
-      title: 'Error',
-      message: 'Oops, something went wrong',
-    });
-  } finally {
-    loader.classList.remove('visible');
-  }
-}
-
-function renderPhotos(photos) {
-  if (photos.length === 0) {
-    iziToast.show({
-      message:
-        'Sorry, there are no images matching your search query. Please try again!',
-      backgroundColor: 'red',
-      messageColor: 'white',
-      messageSize: '25',
-    });
-    return;
-  }
-
-  photos.forEach(photo => {
+    fetchImagesParams.page = 1;
     const {
-      webformatURL,
-      largeImageURL,
-      tags,
-      likes,
-      views,
-      comments,
-      downloads,
-    } = photo;
-    const photoElement = makeMarkup(
-      webformatURL,
-      largeImageURL,
-      tags,
-      likes,
-      views,
-      comments,
-      downloads
-    );
-    gallery.insertAdjacentHTML('beforeend', photoElement);
-  });
+      data: { hits, totalHits },
+    } = await fetchImages(fetchImagesParams.q, fetchImagesParams.page);
 
-  totalResult += photos.length;
+    if (Array.isArray(hits) && hits.length > 0) {
+      const galleryHTML = hits.map(createGallery).join('');
+      selector.galleryContainer.innerHTML += galleryHTML;
 
-  galleryLightbox.refresh();
+      const lightbox = new SimpleLightbox(`.${GALLERY_LINK}`);
 
-  isLoadMore(totalResult, totalHits);
-  return totalResult;
-}
+      lightbox.refresh();
 
-function makeMarkup(
-  webformatURL,
-  largeImageURL,
-  tags,
-  likes,
-  views,
-  comments,
-  downloads
-) {
-  return `<li class="photo">
-  <div class="photo-card">
-    <a class="image-link" data-lightbox="image" href="${largeImageURL}">
-    <img class="gallery-image" data-source="${largeImageURL}"  src="${webformatURL}" alt="${tags}"></img>
-    </a>
-    </div>
-      <div class="description">
-        <p class="description-item"> Likes ${likes}</p>
-        <p class="description-item"> Views ${views}</p>
-        <p class="description-item"> Comments ${comments}</p>
-        <p class="description-item"> Downloads ${downloads}</p>
-    </div>
-  </li>`;
-}
+      endOfPageElement =
+        selector.galleryContainer.children[
+          selector.galleryContainer.children.length - 1
+        ];
 
-async function onLoadMoreClick() {
-  hideLoadBtn();
-  loader.classList.add('visible');
+      observer.observe(endOfPageElement);
 
-  const searchQuery = searchInput.value.trim();
+      total = totalHits;
 
-  try {
-    const response = await axios.get('/api/', {
-      params: { q: searchQuery, page: (page += 1) },
-    });
-    const data = response.data;
-
-    totalHits = data.totalHits;
-    totalResult = renderPhotos(data.hits, totalHits, totalResult);
-    smoothScrollToNextGallery();
-  } catch (error) {
-    console.log('Error fetching data:', error);
-    iziToast.show({
-      title: 'Error',
-      message: 'Oops, something went wrong',
-    });
-  } finally {
-    loader.classList.remove('visible');
-  }
-}
-
-function isLoadMore(totalResult, totalHits) {
-  if (totalResult >= totalHits) {
-    if (currentSearchQuery === '') {
-      iziToast.show({
-        message: "We're sorry, but you've reached the end of search results.",
-        backgroundColor: '#125487',
-        messageColor: 'white',
-        messageSize: '25',
-      });
-      hideLoadBtn();
+      toastSuccess(`Was found: ${totalHits} images`);
     } else {
-      hideLoadBtn();
-      iziToast.show({
-        message: "Cannot load more images. You've reached the limit.",
-        backgroundColor: '#125487',
-        messageColor: 'white',
-        messageSize: '25',
-      });
+      toastError(
+        'Sorry, there are no images matching your search query. Please try again!'
+      );
     }
-  } else {
-    showLoadBtn();
+  } catch (error) {
+    toastError(`Error fetching images: ${error}`);
+  } finally {
+    selector.searchForm.reset();
+    selector.loaderContainer.style.display = 'none';
   }
-}
+});
 
-function smoothScrollToNextGallery() {
-  const galleryItemHeight = document
-    .querySelector('.photo')
-    .getBoundingClientRect().height;
-  window.scrollBy({ top: galleryItemHeight * 2, behavior: 'smooth' });
-}
+async function handleIntersection(entries) {
+  const entry = entries[0];
+  if (Math.ceil(total / fetchImagesParams.per_page) <= fetchImagesParams.page) {
+    return toastWarning(
+      "We're sorry, but you've reached the end of search results."
+    );
+  }
 
-function showLoadBtn() {
-  loadBtn.style.visibility = 'visible';
-}
+  if (entry.isIntersecting) {
+    selector.loaderScrollContainer.style.display = 'block';
 
-function hideLoadBtn() {
-  loadBtn.style.visibility = 'hidden';
+    fetchImagesParams.page++;
+
+    try {
+      const {
+        data: { hits },
+      } = await fetchImages(fetchImagesParams.q, fetchImagesParams.page);
+
+      if (Array.isArray(hits) && hits.length > 0) {
+        const galleryHTML = hits.map(createGallery).join('');
+        selector.galleryContainer.innerHTML += galleryHTML;
+
+        const lightbox = new SimpleLightbox(`.${GALLERY_LINK}`);
+
+        lightbox.refresh();
+
+        endOfPageElement =
+          selector.galleryContainer.children[
+            selector.galleryContainer.children.length - 1
+          ];
+
+        observer.observe(endOfPageElement);
+      }
+    } catch (error) {
+      toastError(`Error loading images: ${error.message}`);
+    } finally {
+      selector.loaderScrollContainer.style.display = 'none';
+    }
+  }
 }
