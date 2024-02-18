@@ -141,7 +141,7 @@ function makeMarkup(
 async function onLoadMoreClick() {
   const searchQuery = searchInput.value.trim();
 
-  if (totalResult >= totalHits) {
+  if (totalResult >= totalHits || totalResult >= 29) {
     if (currentSearchQuery === '') {
       iziToast.show({
         message: "We're sorry, but you've reached the end of search results.",
@@ -157,6 +157,7 @@ async function onLoadMoreClick() {
         messageSize: '25',
       });
     }
+    hideLoadBtn();
     return;
   }
 
@@ -178,29 +179,4 @@ async function onLoadMoreClick() {
       message: 'Oops, something went wrong',
     });
   } finally {
-    loader.classList.remove('visible');
-  }
-}
-
-function isLoadMore(totalResult, totalHits) {
-  if (totalResult >= totalHits) {
-    hideLoadBtn();
-  } else {
-    showLoadBtn();
-  }
-}
-
-function smoothScrollToNextGallery() {
-  const galleryItemHeight = document
-    .querySelector('.photo')
-    .getBoundingClientRect().height;
-  window.scrollBy({ top: galleryItemHeight * 2, behavior: 'smooth' });
-}
-
-function showLoadBtn() {
-  loadBtn.style.visibility = 'visible';
-}
-
-function hideLoadBtn() {
-  loadBtn.style.visibility = 'hidden';
-}
+    loader
