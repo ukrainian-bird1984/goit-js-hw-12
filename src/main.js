@@ -11,7 +11,7 @@ const axios = Axios.create({
     image_type: 'photo',
     orientation: 'horizontal',
     safesearch: true,
-    per_page: 15,
+    per_page: 29, // Set the maximum number of images to 29
     page: 1,
   },
 });
@@ -37,7 +37,6 @@ async function getPhoto(event) {
 
   const searchQuery = searchInput.value.trim();
 
-  // Очищення галереї перед новим запитом
   gallery.innerHTML = '';
 
   if (searchQuery === '') {
@@ -124,30 +123,34 @@ function renderPhotos(photos) {
     });
     loadBtn.style.visibility = 'hidden';
   } else {
-    loadBtn.style.visibility = 'visible';
-  }
+    if (photos.length < 29) {
+      loadBtn.style.visibility = 'hidden';
+    } else {
+      loadBtn.style.visibility = 'visible';
+    }
 
-  photos.forEach(photo => {
-    const {
-      webformatURL,
-      largeImageURL,
-      tags,
-      likes,
-      views,
-      comments,
-      downloads,
-    } = photo;
-    const photoElement = makeMarkup(
-      webformatURL,
-      largeImageURL,
-      tags,
-      likes,
-      views,
-      comments,
-      downloads
-    );
-    gallery.insertAdjacentHTML('beforeend', photoElement);
-  });
+    photos.slice(0, 29).forEach(photo => {
+      const {
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      } = photo;
+      const photoElement = makeMarkup(
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads
+      );
+      gallery.insertAdjacentHTML('beforeend', photoElement);
+    });
+  }
 
   galleryLightbox.refresh();
 }
