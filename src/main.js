@@ -1,105 +1,204 @@
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
+import Axios from 'axios';
 
-import { fetchImagesParams } from './js/api/fetchImages';
-import { toastError, toastSuccess, toastWarning } from './js/components/toast';
-import createGallery from './js/components/gallery';
-import selector from './js/components/selector';
-import { fetchImages } from './js/api/fetchImages';
-import { GALLERY_LINK } from './js/constants/classes';
+const form = document.querySelector('.form');
+const searchInput = document.querySelector('.input-name');
+const loader = document.querySelector('.loader');
+const gallery = document.querySelector('.gallery');
+const loadBtn = document.querySelector('.load-btn');
+let currentSearchQuery = '';
+let totalResult = 0;
+let totalHits = 0;
+let page = 1;
 
-let total;
-let endOfPageElement;
-
-const observer = new IntersectionObserver(handleIntersection, {
-  threshold: 0,
+const axios = Axios.create({
+  baseURL: 'https://pixabay.com',
+  params: {
+    key: '42310325-d8e2b88bd4f4d7db9639050a5',
+    image_type: 'photo',
+    orientation: 'horizontal',
+    safesearch: true,
+    per_page: 15,
+    page: 1,
+  },
 });
 
-selector.searchForm.addEventListener('submit', async function (event) {
-  event.preventDefault();
-  fetchImagesParams.q = event.target.elements.query.value;
+let galleryLightbox = new SimpleLightbox('.image-link', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});
 
-  if (fetchImagesParams.q === '') {
+form.addEventListener('submit', getPhoto);
+loadBtn.addEventListener('click', onLoadMoreClick);
+
+async function getPhoto(event) {
+  event.preventDefault();
+
+  const searchQuery = searchInput.value.trim();
+
+  if (searchQuery === '') {
+    iziToast.show({
+      title: 'Error',
+      message: 'Please enter a search query',
+    });
     return;
   }
 
-  selector.galleryContainer.innerHTML = '';
-  selector.loaderContainer.style.display = 'block';
+  gallery.innerHTML = '';
+  page = 1;
+  totalResult = 0;
+  currentSearchQuery = searchQuery; // Зберігаємо поточний пошуковий запит
+  hideLoadBtn();
+  loader.classList.add('visible');
 
   try {
-    fetchImagesParams.page = 1;
-    const {
-      data: { hits, totalHits },
-    } = await fetchImages(fetchImagesParams.q, fetchImagesParams.page);
-
-    if (Array.isArray(hits) && hits.length > 0) {
-      const galleryHTML = hits.map(createGallery).join('');
-      selector.galleryContainer.innerHTML += galleryHTML;
-
-      const lightbox = new SimpleLightbox(`.${GALLERY_LINK}`);
-
-      lightbox.refresh();
-
-      endOfPageElement =
-        selector.galleryContainer.children[
-          selector.galleryContainer.children.length - 1
-        ];
-
-      observer.observe(endOfPageElement);
-
-      total = totalHits;
-
-      toastSuccess(`Was found: ${totalHits} images`);
-    } else {
-      toastError(
-        'Sorry, there are no images matching your search query. Please try again!'
-      );
-    }
+    const response = await axios.get('/api/', {
+      params: { q: searchQuery },
+    });
+    const data = response.data;
+    totalHits = data.totalHits;
+    totalResult = renderPhotos(data.hits, totalHits, totalResult);
   } catch (error) {
-    toastError(`Error fetching images: ${error}`);
+    console.log('Error fetching data:', error);
+    iziToast.show({
+      title: 'Error',
+      message: 'Oops, something went wrong',
+    });
   } finally {
-    selector.searchForm.reset();
-    selector.loaderContainer.style.display = 'none';
+    loader.classList.remove('visible');
   }
-});
+}
 
-async function handleIntersection(entries) {
-  const entry = entries[0];
-  if (Math.ceil(total / fetchImagesParams.per_page) <= fetchImagesParams.page) {
-    return toastWarning(
-      "We're sorry, but you've reached the end of search results."
+function renderPhotos(photos) {
+  if (photos.length === 0) {
+    iziToast.show({
+      message:
+        'Sorry, there are no images matching your search query. Please try again!',
+      backgroundColor: 'red',
+      messageColor: 'white',
+      messageSize: '25',
+    });
+    return;
+  }
+
+  photos.forEach(photo => {
+    const {
+      webformatURL,
+      largeImageURL,
+      tags,
+      likes,
+      views,
+      comments,
+      downloads,
+    } = photo;
+    const photoElement = makeMarkup(
+      webformatURL,
+      largeImageURL,
+      tags,
+      likes,
+      views,
+      comments,
+      downloads
     );
+    gallery.insertAdjacentHTML('beforeend', photoElement);
+  });
+
+  totalResult += photos.length;
+
+  galleryLightbox.refresh();
+
+  isLoadMore(totalResult, totalHits);
+  return totalResult;
+}
+
+function makeMarkup(
+  webformatURL,
+  largeImageURL,
+  tags,
+  likes,
+  views,
+  comments,
+  downloads
+) {
+  return `<li class="photo">
+  <div class="photo-card">
+    <a class="image-link" data-lightbox="image" href="${largeImageURL}">
+    <img class="gallery-image" data-source="${largeImageURL}"  src="${webformatURL}" alt="${tags}"></img>
+    </a>
+    </div>
+      <div class="description">
+        <p class="description-item"> Likes ${likes}</p>
+        <p class="description-item"> Views ${views}</p>
+        <p class="description-item"> Comments ${comments}</p>
+        <p class="description-item"> Downloads ${downloads}</p>
+    </div>
+  </li>`;
+}
+
+async function onLoadMoreClick() {
+  hideLoadBtn();
+  loader.classList.add('visible');
+
+  const searchQuery = searchInput.value.trim();
+
+  try {
+    const response = await axios.get('/api/', {
+      params: { q: searchQuery, page: (page += 1) },
+    });
+    const data = response.data;
+
+    totalHits = data.totalHits;
+    totalResult = renderPhotos(data.hits, totalHits, totalResult);
+    smoothScrollToNextGallery();
+  } catch (error) {
+    console.log('Error fetching data:', error);
+    iziToast.show({
+      title: 'Error',
+      message: 'Oops, something went wrong',
+    });
+  } finally {
+    loader.classList.remove('visible');
   }
+}
 
-  if (entry.isIntersecting) {
-    selector.loaderScrollContainer.style.display = 'block';
-
-    fetchImagesParams.page++;
-
-    try {
-      const {
-        data: { hits },
-      } = await fetchImages(fetchImagesParams.q, fetchImagesParams.page);
-
-      if (Array.isArray(hits) && hits.length > 0) {
-        const galleryHTML = hits.map(createGallery).join('');
-        selector.galleryContainer.innerHTML += galleryHTML;
-
-        const lightbox = new SimpleLightbox(`.${GALLERY_LINK}`);
-
-        lightbox.refresh();
-
-        endOfPageElement =
-          selector.galleryContainer.children[
-            selector.galleryContainer.children.length - 1
-          ];
-
-        observer.observe(endOfPageElement);
-      }
-    } catch (error) {
-      toastError(`Error loading images: ${error.message}`);
-    } finally {
-      selector.loaderScrollContainer.style.display = 'none';
+function isLoadMore(totalResult, totalHits) {
+  if (totalResult >= totalHits) {
+    if (currentSearchQuery === '') {
+      iziToast.show({
+        message: "We're sorry, but you've reached the end of search results.",
+        backgroundColor: '#125487',
+        messageColor: 'white',
+        messageSize: '25',
+      });
+      hideLoadBtn();
+    } else {
+      hideLoadBtn();
+      iziToast.show({
+        message: "Cannot load more images. You've reached the limit.",
+        backgroundColor: '#125487',
+        messageColor: 'white',
+        messageSize: '25',
+      });
     }
+  } else {
+    showLoadBtn();
   }
+}
+
+function smoothScrollToNextGallery() {
+  const galleryItemHeight = document
+    .querySelector('.photo')
+    .getBoundingClientRect().height;
+  window.scrollBy({ top: galleryItemHeight * 2, behavior: 'smooth' });
+}
+
+function showLoadBtn() {
+  loadBtn.style.visibility = 'visible';
+}
+
+function hideLoadBtn() {
+  loadBtn.style.visibility = 'hidden';
 }
