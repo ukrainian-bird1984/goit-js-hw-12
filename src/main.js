@@ -15,6 +15,7 @@ const axios = Axios.create({
     page: 1,
   },
 });
+
 let galleryLightbox = new SimpleLightbox('.image-link', {
   captionsData: 'alt',
   captionDelay: 250,
@@ -43,11 +44,6 @@ async function getPhoto(event) {
     return;
   }
 
-  if (searchQuery !== currentSearchQuery) {
-    page = 1;
-    currentSearchQuery = searchQuery;
-  }
-
   loader.classList.add('visible');
 
   try {
@@ -57,7 +53,10 @@ async function getPhoto(event) {
     const data = response.data;
     renderPhotos(data.hits);
   } catch (error) {
-    console.log('Error fetching data:', error);
+    iziToast.error({
+      title: 'Error fetching data',
+      message: 'An error occurred while fetching data. Please try again later.',
+    });
   } finally {
     loader.classList.remove('visible');
   }
@@ -77,7 +76,10 @@ async function onLoadMoreClick() {
     const data = response.data;
     renderPhotos(data.hits);
   } catch (error) {
-    console.log('Error fetching data:', error);
+    iziToast.error({
+      title: 'Error fetching data',
+      message: 'An error occurred while fetching data. Please try again later.',
+    });
   } finally {
     loader.classList.remove('visible');
   }
@@ -108,6 +110,10 @@ function makeMarkup(
 }
 
 function renderPhotos(photos) {
+  gallery.innerHTML = '';
+
+  resetForm();
+
   if (photos.length === 0 && page === 1) {
     iziToast.show({
       message:
@@ -146,16 +152,20 @@ function renderPhotos(photos) {
   galleryLightbox.refresh();
 }
 
+function resetForm() {
+  form.reset();
+}
+
 loadBtn.style.visibility = 'hidden';
 
 const totalPages = Math.ceil(images.totalHits / perPage);
 
-    if (currentPage >= totalPages) {
-      loadMoreBtn.style.display = 'none';
-      return iziToast.info({
-        position: 'topRight',
-        message: "We're sorry, but you've reached the end of search results.",
-      });
-    } else {
-      loadMoreBtn.style.display = 'block';
-    }
+if (currentPage >= totalPages) {
+  loadMoreBtn.style.display = 'none';
+  return iziToast.info({
+    position: 'topRight',
+    message: "We're sorry, but you've reached the end of search results.",
+  });
+} else {
+  loadMoreBtn.style.display = 'block';
+}
