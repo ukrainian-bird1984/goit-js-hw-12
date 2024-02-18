@@ -26,7 +26,7 @@ page: 1,
 totalResults: 0,
 q: '',
 }
- //----
+
 form.addEventListener('submit', async e => {
 e.preventDefault();
 searchParams.q = e.target.elements.input.value;
