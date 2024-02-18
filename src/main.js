@@ -139,10 +139,28 @@ function makeMarkup(
 }
 
 async function onLoadMoreClick() {
-  hideLoadBtn();
-  loader.classList.add('visible');
-
   const searchQuery = searchInput.value.trim();
+
+  if (totalResult >= totalHits) {
+    if (currentSearchQuery === '') {
+      iziToast.show({
+        message: "We're sorry, but you've reached the end of search results.",
+        backgroundColor: '#125487',
+        messageColor: 'white',
+        messageSize: '25',
+      });
+    } else {
+      iziToast.show({
+        message: "Cannot load more images. You've reached the limit.",
+        backgroundColor: '#125487',
+        messageColor: 'white',
+        messageSize: '25',
+      });
+    }
+    return;
+  }
+
+  loader.classList.add('visible');
 
   try {
     const response = await axios.get('/api/', {
@@ -166,23 +184,7 @@ async function onLoadMoreClick() {
 
 function isLoadMore(totalResult, totalHits) {
   if (totalResult >= totalHits) {
-    if (currentSearchQuery === '') {
-      iziToast.show({
-        message: "We're sorry, but you've reached the end of search results.",
-        backgroundColor: '#125487',
-        messageColor: 'white',
-        messageSize: '25',
-      });
-      hideLoadBtn();
-    } else {
-      hideLoadBtn();
-      iziToast.show({
-        message: "Cannot load more images. You've reached the limit.",
-        backgroundColor: '#125487',
-        messageColor: 'white',
-        messageSize: '25',
-      });
-    }
+    hideLoadBtn();
   } else {
     showLoadBtn();
   }
