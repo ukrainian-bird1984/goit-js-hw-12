@@ -44,7 +44,6 @@ form.addEventListener('submit', async (e) => {
     loader.classList.remove('hidden');
 
     searchParams.page = 1;
-
     try {
         const images = await getPhotoByName();
         searchParams.totalResults = images.totalHits;
@@ -58,14 +57,11 @@ form.addEventListener('submit', async (e) => {
             messageSize: '25',
         });
     }
-
-    loader.classList.add('hidden');
     e.target.reset();
 });
 
 btnElem.addEventListener('click', async () => {
     searchParams.page += 1;
-
     try {
         const images = await getPhotoByName();
         createGallery(images);
@@ -86,8 +82,12 @@ btnElem.addEventListener('click', async () => {
 
 async function getPhotoByName() {
     const urlParams = new URLSearchParams(searchParams);
-    const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
-    return response.data;
+    try {
+        const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
+        return response.data;
+    } catch (error) {
+        throw error; // Передаємо помилку вище для подальшої обробки
+    }
 }
 
 function createGallery(images) {
