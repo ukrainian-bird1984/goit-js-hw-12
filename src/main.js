@@ -22,7 +22,6 @@ const searchParams = {
     safesearch: true,
     per_page: 15,
     page: 1,
-    totalResults: 0,
     q: '',
 };
 
@@ -30,19 +29,9 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const inputValue = e.target.elements.input.value.trim();
 
-    if (!inputValue || inputValue === '') {
+    if (!inputValue) {
         iziToast.show({
             message: 'Please enter a valid search query.',
-            backgroundColor: '#125487',
-            messageColor: 'white',
-            messageSize: '25',
-        });
-        return;
-    }
-
-    if (!navigator.onLine) {
-        iziToast.show({
-            message: 'No internet connection. Please check your connection and try again.',
             backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
@@ -55,21 +44,11 @@ form.addEventListener('submit', async (e) => {
     loader.classList.remove('hidden');
 
     searchParams.page = 1;
-    try {
-        const images = await getPhotoByName();
-        searchParams.totalResults = images.totalHits;
-        createGallery(images);
-        checkBtnStatus();
-        e.target.reset();
-    } catch (error) {
-        console.error('Error fetching images:', error);
-        iziToast.show({
-            message: 'An error occurred while fetching images. Please try again.',
-            backgroundColor: '#125487',
-            messageColor: 'white',
-            messageSize: '25',
-        });
-    }
+    const images = await getPhotoByName();
+    searchParams.totalResults = images.totalHits;
+    createGallery(images);
+    checkBtnStatus();
+    e.target.reset();
 });
 
 btnElem.addEventListener('click', async () => {
@@ -131,11 +110,24 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox(/* тут може бути ваш код для SimpleLightbox */);
+    let lightBox = new SimpleLightbox
+
+
+    //-----
+    const searchQuery = searchInput.value.trim();
+
+if (searchQuery === '') {
+    iziToast.show({
+        title: 'Error',
+        message: 'Please enter a search query',
+    });
+    return;
 }
 
-function checkBtnStatus() {
-    if (searchParams.page * searchParams.per_page >= searchParams.totalResults) {
-        btnElem.classList.add('hidden');
-    }
+} catch (error) {
+    console.log('Error fetching data:', error);
+    iziToast.show({
+        title: 'Error',
+        message: 'Oops, something went wrong',
+    });
 }
