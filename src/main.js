@@ -48,8 +48,6 @@ form.addEventListener('submit', async (e) => {
     searchParams.totalResults = images.totalHits;
     createGallery(images);
     checkBtnStatus();
-
-    // Очистка поля вводу при введенні нового запиту
     e.target.reset();
 });
 
@@ -112,10 +110,26 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox;
+    let lightBox = new SimpleLightbox
+
 
     //-----
-    // Очищення поля вводу при введенні нового запиту
-    const inputElement = document.querySelector('.form input');
-    inputElement.value = '';
+    const searchQuery = searchInput.value.trim();
+
+if (searchQuery === '') {
+    iziToast.show({
+        title: 'Error',
+        message: 'Please enter a search query',
+    });
+    return;
 }
+
+} catch (error) {
+    console.log('Error fetching data:', error);
+    iziToast.show({
+        title: 'Error',
+        message: 'Oops, something went wrong',
+    });
+}
+
+searchInput.value = '';
