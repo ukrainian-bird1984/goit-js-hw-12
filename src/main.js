@@ -9,10 +9,9 @@ const summary = {
     gallery: document.querySelector('.gallery'),
     loader: document.querySelector('.loader'),
     btnElem: document.querySelector('.btn'),
-    searchInput: document.querySelector('.input-name'),
 };
 
-const { form, gallery, loader, btnElem, searchInput } = summary;
+const { form, gallery, loader, btnElem } = summary;
 
 loader.classList.add('hidden');
 
@@ -25,6 +24,8 @@ const searchParams = {
     page: 1,
     q: '',
 };
+
+const searchInput = document.querySelector('.input-name');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -50,7 +51,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.value = ''; // Очищення поля вводу
+    searchInput.value = ''; 
 });
 
 btnElem.addEventListener('click', async () => {
@@ -62,6 +63,7 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
+    searchInput.value = ''; 
 });
 
 async function getPhotoByName() {
@@ -112,8 +114,9 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox
+    let lightBox = new SimpleLightbox;
 
+    //-----
     const searchQuery = searchInput.value.trim();
 
     if (searchQuery === '') {
@@ -124,12 +127,12 @@ function createGallery(images) {
         return;
     }
 
-    searchInput.value = ''; // Очищення поля вводу
 } catch (error) {
     console.log('Error fetching data:', error);
     iziToast.show({
         title: 'Error',
         message: 'Oops, something went wrong',
     });
-    searchInput.value = ''; // Очищення поля вводу
 }
+
+searchInput.value = ''; 
