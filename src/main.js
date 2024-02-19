@@ -22,6 +22,7 @@ const searchParams = {
     safesearch: true,
     per_page: 15,
     page: 1,
+    totalResults: 0,
     q: '',
 };
 
@@ -29,9 +30,19 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const inputValue = e.target.elements.input.value.trim();
 
-    if (!inputValue) {
+    if (!inputValue || inputValue === '') {
         iziToast.show({
             message: 'Please enter a valid search query.',
+            backgroundColor: '#125487',
+            messageColor: 'white',
+            messageSize: '25',
+        });
+        return;
+    }
+
+    if (!navigator.onLine) {
+        iziToast.show({
+            message: 'No internet connection. Please check your connection and try again.',
             backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
@@ -49,45 +60,33 @@ form.addEventListener('submit', async (e) => {
         searchParams.totalResults = images.totalHits;
         createGallery(images);
         checkBtnStatus();
+        e.target.reset();
     } catch (error) {
+        console.error('Error fetching images:', error);
         iziToast.show({
-            message: 'Error: Unable to fetch images. Please check your internet connection and try again.',
-            backgroundColor: '#FF0000',
+            message: 'An error occurred while fetching images. Please try again.',
+            backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
         });
     }
-    e.target.reset();
 });
 
 btnElem.addEventListener('click', async () => {
     searchParams.page += 1;
-    try {
-        const images = await getPhotoByName();
-        createGallery(images);
-        checkBtnStatus();
-        window.scrollBy({
-            top: 465,
-            behavior: 'smooth',
-        });
-    } catch (error) {
-        iziToast.show({
-            message: 'Error: Unable to fetch more images. Please check your internet connection and try again.',
-            backgroundColor: '#FF0000',
-            messageColor: 'white',
-            messageSize: '25',
-        });
-    }
+    const images = await getPhotoByName();
+    createGallery(images);
+    checkBtnStatus();
+    window.scrollBy({
+        top: 465,
+        behavior: 'smooth',
+    });
 });
 
 async function getPhotoByName() {
     const urlParams = new URLSearchParams(searchParams);
-    try {
-        const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
-        return response.data;
-    } catch (error) {
-        throw error; // Передаємо помилку вище для подальшої обробки
-    }
+    const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
+    return response.data;
 }
 
 function createGallery(images) {
@@ -132,5 +131,11 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox();
+    let lightBox = new SimpleLightbox(/* тут може бути ваш код для SimpleLightbox */);
+}
+
+function checkBtnStatus() {
+    if (searchParams.page * searchParams.per_page >= searchParams.totalResults) {
+        btnElem.classList.add('hidden');
+    }
 }
