@@ -22,7 +22,6 @@ const searchParams = {
     safesearch: true,
     per_page: 15,
     page: 1,
-    totalResults: 0,
     q: '',
 };
 
