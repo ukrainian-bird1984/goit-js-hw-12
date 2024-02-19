@@ -132,4 +132,3 @@ if (searchQuery === '') {
     });
 }
 
-searchInput.value = '';
