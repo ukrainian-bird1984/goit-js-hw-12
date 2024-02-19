@@ -45,22 +45,44 @@ form.addEventListener('submit', async (e) => {
     loader.classList.remove('hidden');
 
     searchParams.page = 1;
-    const images = await getPhotoByName();
-    searchParams.totalResults = images.totalHits;
-    createGallery(images);
-    checkBtnStatus();
+
+    try {
+        const images = await getPhotoByName();
+        searchParams.totalResults = images.totalHits;
+        createGallery(images);
+        checkBtnStatus();
+    } catch (error) {
+        iziToast.show({
+            message: 'Error: Unable to fetch images. Please check your internet connection and try again.',
+            backgroundColor: '#FF0000',
+            messageColor: 'white',
+            messageSize: '25',
+        });
+    }
+
+    loader.classList.add('hidden');
     e.target.reset();
 });
 
 btnElem.addEventListener('click', async () => {
     searchParams.page += 1;
-    const images = await getPhotoByName();
-    createGallery(images);
-    checkBtnStatus();
-    window.scrollBy({
-        top: 465,
-        behavior: 'smooth',
-    });
+
+    try {
+        const images = await getPhotoByName();
+        createGallery(images);
+        checkBtnStatus();
+        window.scrollBy({
+            top: 465,
+            behavior: 'smooth',
+        });
+    } catch (error) {
+        iziToast.show({
+            message: 'Error: Unable to fetch more images. Please check your internet connection and try again.',
+            backgroundColor: '#FF0000',
+            messageColor: 'white',
+            messageSize: '25',
+        });
+    }
 });
 
 async function getPhotoByName() {
@@ -111,4 +133,5 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox
+    let lightBox = new SimpleLightbox();
+}
