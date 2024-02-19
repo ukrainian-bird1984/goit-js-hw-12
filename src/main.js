@@ -9,9 +9,10 @@ const summary = {
     gallery: document.querySelector('.gallery'),
     loader: document.querySelector('.loader'),
     btnElem: document.querySelector('.btn'),
+    searchInput: document.querySelector('.input-name'),
 };
 
-const { form, gallery, loader, btnElem } = summary;
+const { form, gallery, loader, btnElem, searchInput } = summary;
 
 loader.classList.add('hidden');
 
@@ -49,6 +50,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
+    searchInput.value = ''; // Очищення поля вводу
 });
 
 btnElem.addEventListener('click', async () => {
@@ -112,23 +114,22 @@ function createGallery(images) {
 
     let lightBox = new SimpleLightbox
 
-
-    //-----
     const searchQuery = searchInput.value.trim();
 
-if (searchQuery === '') {
-    iziToast.show({
-        title: 'Error',
-        message: 'Please enter a search query',
-    });
-    return;
-}
+    if (searchQuery === '') {
+        iziToast.show({
+            title: 'Error',
+            message: 'Please enter a search query',
+        });
+        return;
+    }
 
+    searchInput.value = ''; // Очищення поля вводу
 } catch (error) {
     console.log('Error fetching data:', error);
     iziToast.show({
         title: 'Error',
         message: 'Oops, something went wrong',
     });
+    searchInput.value = ''; // Очищення поля вводу
 }
-
