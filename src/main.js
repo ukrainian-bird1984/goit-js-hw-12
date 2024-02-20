@@ -22,7 +22,6 @@ const searchParams = {
     safesearch: true,
     per_page: 15,
     page: 1,
-    totalResults: 0,
     q: '',
 };
 
@@ -30,10 +29,8 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     searchParams.q = e.target.elements.input.value.trim();
 
-    // Явне очищення поля вводу при введенні лише пробілів та натисканні на кнопку search
     if (searchParams.q.trim() === '') {
         e.target.elements.input.value = '';
-        // Виведення повідомлення про помилку
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
@@ -69,7 +66,6 @@ btnElem.addEventListener('click', async () => {
         behavior: 'smooth',
     });
 
-    // Явне очищення поля вводу при натисканні на кнопку search
     form.elements.input.value = '';
 });
 
@@ -86,7 +82,6 @@ async function getPhotoByName() {
 
 function createGallery(images) {
     if (images.hits.length === 0) {
-        // Виведення повідомлення про помилку
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
@@ -136,7 +131,6 @@ function checkBtnStatus() {
     const isLastPage = maxPage === searchParams.page;
     if (isLastPage) {
         btnElem.classList.add('hidden');
-        // Виведення повідомлення про завершення результатів пошуку
         iziToast.show({
             message: "We're sorry, but you've reached the end of search results.",
             backgroundColor: '#125487',
