@@ -33,21 +33,18 @@ form.addEventListener('submit', async (e) => {
     // Явне очищення поля вводу при введенні лише пробілів та натисканні на кнопку search
     if (searchParams.q.trim() === '') {
         e.target.elements.input.value = '';
-        return;
-    }
-
-    if (!navigator.onLine) {
-        showConnectionErrorMessage();
-        return;
-    }
-
-    if (!searchParams.q) {
+        // Виведення повідомлення про помилку
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
         });
+        return;
+    }
+
+    if (!navigator.onLine) {
+        showConnectionErrorMessage();
         return;
     }
 
@@ -89,6 +86,7 @@ async function getPhotoByName() {
 
 function createGallery(images) {
     if (images.hits.length === 0) {
+        // Виведення повідомлення про помилку
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
@@ -138,20 +136,8 @@ function checkBtnStatus() {
     const isLastPage = maxPage === searchParams.page;
     if (isLastPage) {
         btnElem.classList.add('hidden');
+        // Виведення повідомлення про завершення результатів пошуку
         iziToast.show({
             message: "We're sorry, but you've reached the end of search results.",
             backgroundColor: '#125487',
-            messageColor: 'white',
-            messageSize: '25',
-        });
-    }
-}
-
-function showConnectionErrorMessage() {
-    iziToast.show({
-        message: "Sorry, there is no internet connection. Please check your connection and try again.",
-        backgroundColor: '#125487',
-        messageColor: 'white',
-        messageSize: '25',
-    });
-}
+           
