@@ -38,6 +38,7 @@ form.addEventListener('submit', async (e) => {
             messageColor: 'white',
             messageSize: '25',
         });
+        searchInput.value = '';
         return;
     }
 
@@ -51,7 +52,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.value = '';
+    searchInput.value = ''; 
 });
 
 btnElem.addEventListener('click', async () => {
@@ -63,13 +64,22 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
-    searchInput.value = '';
+    searchInput.value = ''; 
 });
 
 async function getPhotoByName() {
     const urlParams = new URLSearchParams(searchParams);
-    const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
-    return response.data;
+    try {
+        const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
+        return response.data;
+    } catch (error) {
+        console.log('Error fetching data:', error);
+        iziToast.show({
+            title: 'Error',
+            message: 'Oops, something went wrong',
+        });
+        searchInput.value = ''; 
+    }
 }
 
 function createGallery(images) {
@@ -123,8 +133,7 @@ function createGallery(images) {
             title: 'Error',
             message: 'Please enter a search query',
         });
-        return;
     }
 
-    searchInput.value = '';
+    searchInput.value = ''; 
 }
