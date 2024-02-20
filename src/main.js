@@ -38,7 +38,7 @@ form.addEventListener('submit', async (e) => {
             messageColor: 'white',
             messageSize: '25',
         });
-        searchInput.value = ''; // Очистка поля пошуку
+        searchInput.reset(); // Очистка поля пошуку
         return;
     }
 
@@ -52,7 +52,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.value = ''; // Очистка поля пошуку
+    searchInput.reset(); // Очистка поля пошуку
 });
 
 btnElem.addEventListener('click', async () => {
@@ -64,7 +64,7 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
-    searchInput.value = ''; // Очистка поля пошуку
+    searchInput.reset(); // Очистка поля пошуку
 });
 
 async function getPhotoByName() {
@@ -78,7 +78,7 @@ async function getPhotoByName() {
             title: 'Error',
             message: 'Oops, something went wrong',
         });
-        searchInput.value = ''; // Очистка поля пошуку
+        searchInput.reset(); // Очистка поля пошуку
         return { hits: [] }; // Повертаємо пустий об'єкт для уникнення помилок при обробці hits.length
     }
 }
@@ -134,6 +134,6 @@ function createGallery(images) {
             title: 'Error',
             message: 'Please enter a search query',
         });
-        searchInput.value = ''; // Очистка поля пошуку
+        searchInput.reset(); // Очистка поля пошуку
     }
 }
