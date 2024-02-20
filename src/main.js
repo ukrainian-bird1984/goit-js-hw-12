@@ -49,7 +49,7 @@ form.addEventListener('submit', async (e) => {
     searchParams.totalResults = images.totalHits;
     createGallery(images);
     checkBtnStatus();
-    e.target.reset();
+    form.reset(); // Очистка форми
 });
 
 btnElem.addEventListener('click', async () => {
@@ -111,4 +111,5 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox
+    let lightBox = new SimpleLightbox();
+}
