@@ -12,6 +12,7 @@ const summary = {
 };
 
 const { form, gallery, loader, btnElem } = summary;
+let page = 1; // Add page variable
 
 loader.classList.add('hidden');
 
@@ -51,7 +52,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.value = ''; 
+    searchInput.value = '';
 });
 
 btnElem.addEventListener('click', async () => {
@@ -63,7 +64,7 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
-    searchInput.value = ''; 
+    searchInput.value = '';
 });
 
 async function getPhotoByName() {
@@ -126,24 +127,24 @@ function createGallery(images) {
         return;
     }
 
-try {
-    const response = await axios.get('/api/', {
-      params: { q: searchQuery, page: (page += 1) },
-    });
-    const data = response.data;
+    try {
+        const response = await axios.get('/api/', {
+          params: { q: searchQuery, page: page }, // Use the page variable
+        });
+        const data = response.data;
 
-    totalHits = data.totalHits;
-    totalResult = renderPhotos(data.hits, totalHits, totalResult);
-    smoothScrollToNextGallery();
-  } catch (error) {
-    console.log('Error fetching data:', error);
-    iziToast.show({
-      title: 'Error',
-      message: 'Oops, something went wrong',
-    });
-  } finally {
-    loader.classList.remove('visible');
-  }
+        totalHits = data.totalHits;
+        totalResult = renderPhotos(data.hits, totalHits, totalResult);
+        smoothScrollToNextGallery();
+    } catch (error) {
+        console.log('Error fetching data:', error);
+        iziToast.show({
+            title: 'Error',
+            message: 'Oops, something went wrong',
+        });
+    } finally {
+        loader.classList.remove('visible');
+    }
 }
 
-searchInput.value = ''; 
+searchInput.value = '';
