@@ -146,4 +146,13 @@ function showConnectionErrorMessage() {
         messageSize: '25',
     });
 }
-//---
+
+const searchQuery = searchInput.value.trim();
+
+  if (searchQuery === '') {
+    iziToast.show({
+      title: 'Error',
+      message: 'Please enter a search query',
+    });
+    return;
+  }
