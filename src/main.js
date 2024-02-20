@@ -136,3 +136,4 @@ function createGallery(images) {
 }
 
 searchInput.value = ''; 
+//---
