@@ -79,7 +79,8 @@ function createGallery(images) {
             backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
-        });
+        })
+    };
 
         btnElem.classList.add('hidden');
     } else {
