@@ -22,10 +22,9 @@ const searchParams = {
     safesearch: true,
     per_page: 15,
     page: 1,
+    totalResults: 0,
     q: '',
 };
-
-const searchInput = document.querySelector('.input-name');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -38,7 +37,6 @@ form.addEventListener('submit', async (e) => {
             messageColor: 'white',
             messageSize: '25',
         });
-        searchInput.value = ''; // Очистка поля пошуку
         return;
     }
 
@@ -52,7 +50,6 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.value = ''; // Очистка поля пошуку
 });
 
 btnElem.addEventListener('click', async () => {
@@ -64,23 +61,12 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
-    searchInput.value = ''; // Очистка поля пошуку
 });
 
 async function getPhotoByName() {
     const urlParams = new URLSearchParams(searchParams);
-    try {
-        const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
-        return response.data;
-    } catch (error) {
-        console.log('Error fetching data:', error);
-        iziToast.show({
-            title: 'Error',
-            message: 'Oops, something went wrong',
-        });
-        searchInput.value = ''; // Очистка поля пошуку
-        return { hits: [] }; // Повертаємо пустий об'єкт для уникнення помилок при обробці hits.length
-    }
+    const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
+    return response.data;
 }
 
 function createGallery(images) {
@@ -113,7 +99,7 @@ function createGallery(images) {
                             <h3>Comments</h3>
                             <p>${image.comments}</p>
                         </div>
-                        div>
+                        <div>
                             <h3>Downloads</h3>
                             <p>${image.downloads}</p>
                         </div>
@@ -125,15 +111,4 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox;
-
-    const searchQuery = searchInput.value.trim();
-
-    if (searchQuery === '') {
-        iziToast.show({
-            title: 'Error',
-            message: 'Please enter a search query',
-        });
-        searchInput.value = ''; // Очистка поля пошуку
-    }
-}
+    let lightBox = new SimpleLightbox
