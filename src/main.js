@@ -140,4 +140,17 @@ function checkBtnStatus() {
         iziToast.show({
             message: "We're sorry, but you've reached the end of search results.",
             backgroundColor: '#125487',
-           
+            messageColor: 'white',
+            messageSize: '25',
+        });
+    }
+}
+
+function showConnectionErrorMessage() {
+    iziToast.show({
+        message: "Sorry, there is no internet connection. Please check your connection and try again.",
+        backgroundColor: '#125487',
+        messageColor: 'white',
+        messageSize: '25',
+    });
+}
