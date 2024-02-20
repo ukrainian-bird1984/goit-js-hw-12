@@ -30,6 +30,12 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     searchParams.q = e.target.elements.input.value.trim();
 
+    // Очищення форми вводу, якщо введені саме пробіли
+    if (searchParams.q === '') {
+        e.target.elements.input.value = '';
+        return;
+    }
+
     if (!navigator.onLine) {
         showConnectionErrorMessage();
         return;
@@ -54,11 +60,6 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-
-    // Очищення форми вводу, якщо введені саме пробіли
-    if (e.target.elements.input.value.trim() === '') {
-        e.target.elements.input.value = '';
-    }
 });
 
 btnElem.addEventListener('click', async () => {
