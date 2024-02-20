@@ -54,6 +54,11 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
+
+    // Очищення форми вводу, якщо введені саме пробіли
+    if (e.target.elements.input.value.trim() === '') {
+        e.target.elements.input.value = '';
+    }
 });
 
 btnElem.addEventListener('click', async () => {
@@ -146,13 +151,3 @@ function showConnectionErrorMessage() {
         messageSize: '25',
     });
 }
-
-const searchQuery = searchInput.value.trim();
-
-  if (searchQuery === '') {
-    iziToast.show({
-      title: 'Error',
-      message: 'Please enter a search query',
-    });
-    return;
-  }
