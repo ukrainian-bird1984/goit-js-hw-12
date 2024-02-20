@@ -35,14 +35,13 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    if (!searchParams.q || /^\s*$/.test(searchParams.q)) {
+    if (!searchParams.q) {
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
         });
-        e.target.elements.input.value = ''; // Очищення поля вводу
         return;
     }
 
@@ -91,32 +90,31 @@ function createGallery(images) {
         btnElem.classList.add('hidden');
     } else {
         const link = images.hits.map(image => `<a class="gallery-link" href="${image.largeImageURL}">
-        <img class="gallery-image"
-            src="${image.webformatURL}"
-            alt="${image.tags}"
-        </a>
-        <div class="img-content">
-            <div>
-                <h3>Likes</h3>
-                <p>${image.likes}</p>
-            </div>
+            <img class="gallery-image"
+                src="${image.webformatURL}"
+                alt="${image.tags}"
+            </a>
+            <div class="img-content">
+                <div>
+                    <h3>Likes</h3>
+                    <p>${image.likes}</p>
+                </div>
 
-            <div>
-                <h3>Views</h3>
-                <p>${image.views}</p>
-            </div>
+                <div>
+                    <h3>Views</h3>
+                    <p>${image.views}</p>
+                </div>
 
-            <div>
-                <h3>Comments</h3>
-                <p>${image.comments}</p>
-            </div>
+                <div>
+                    <h3>Comments</h3>
+                    <p>${image.comments}</p>
+                </div>
 
-            <div>
-                <h3>Downloads</h3>
-                <p>${image.downloads}</p>
-            </div>
-        </div>
-    `).join('');
+                <div>
+                    <h3>Downloads</h3>
+                    <p>${image.downloads}</p>
+                </div>
+            </div>`).join('');
         gallery.insertAdjacentHTML('beforeend', link);
         btnElem.classList.remove('hidden');
     }
