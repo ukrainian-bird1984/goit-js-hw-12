@@ -27,19 +27,20 @@ const searchParams = {
     q: '',
 };
 
-searchInput.addEventListener('input', () => {
-    searchParams.q = searchInput.value.trim();
+searchInput.addEventListener('input', (e) => {
+    searchParams.q = e.target.value.trim();
 });
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+    searchParams.q = e.target.elements.input.value.trim();
+
     if (!navigator.onLine) {
         showConnectionErrorMessage();
         return;
     }
 
-    if (!searchParams.q) {
+    if (!searchParams.q || /^\s*$/.test(searchParams.q)) {
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
