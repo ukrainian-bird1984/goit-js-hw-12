@@ -12,6 +12,7 @@ const summary = {
 };
 
 const { form, gallery, loader, btnElem } = summary;
+let page = 1;
 
 loader.classList.add('hidden');
 
@@ -22,7 +23,6 @@ const searchParams = {
     safesearch: true,
     per_page: 15,
     page: 1,
-    totalResults: 0,
     q: '',
 };
 
@@ -48,15 +48,13 @@ form.addEventListener('submit', async (e) => {
     const images = await getPhotoByName();
     searchParams.totalResults = images.totalHits;
     createGallery(images);
-    checkBtnStatus();
-    form.reset(); // Очистка форми
+    e.target.reset();
 });
 
 btnElem.addEventListener('click', async () => {
     searchParams.page += 1;
     const images = await getPhotoByName();
     createGallery(images);
-    checkBtnStatus();
     window.scrollBy({
         top: 465,
         behavior: 'smooth',
@@ -111,5 +109,5 @@ function createGallery(images) {
         btnElem.classList.remove('hidden');
     }
 
-    let lightBox = new SimpleLightbox();
+    let lightBox = new SimpleLightbox;
 }
