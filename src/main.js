@@ -116,7 +116,6 @@ function createGallery(images) {
 
     let lightBox = new SimpleLightbox;
 
-    //-----
     const searchQuery = searchInput.value.trim();
 
     if (searchQuery === '') {
@@ -127,13 +126,24 @@ function createGallery(images) {
         return;
     }
 
-} catch (error) {
+try {
+    const response = await axios.get('/api/', {
+      params: { q: searchQuery, page: (page += 1) },
+    });
+    const data = response.data;
+
+    totalHits = data.totalHits;
+    totalResult = renderPhotos(data.hits, totalHits, totalResult);
+    smoothScrollToNextGallery();
+  } catch (error) {
     console.log('Error fetching data:', error);
     iziToast.show({
-        title: 'Error',
-        message: 'Oops, something went wrong',
+      title: 'Error',
+      message: 'Oops, something went wrong',
     });
+  } finally {
+    loader.classList.remove('visible');
+  }
 }
 
 searchInput.value = ''; 
-//---
