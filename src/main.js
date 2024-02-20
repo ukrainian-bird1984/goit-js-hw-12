@@ -35,13 +35,14 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    if (!searchParams.q) {
+    if (!searchParams.q || /^\s*$/.test(searchParams.q)) {
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
         });
+        e.target.elements.input.value = ''; // Очищення поля вводу
         return;
     }
 
