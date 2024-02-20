@@ -30,8 +30,8 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     searchParams.q = e.target.elements.input.value.trim();
 
-    // Очищення форми вводу, якщо введені саме пробіли
-    if (searchParams.q === '') {
+    // Явне очищення поля вводу при введенні лише пробілів та натисканні на кнопку search
+    if (searchParams.q.trim() === '') {
         e.target.elements.input.value = '';
         return;
     }
@@ -71,6 +71,9 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
+
+    // Явне очищення поля вводу при натисканні на кнопку search
+    form.elements.input.value = '';
 });
 
 async function getPhotoByName() {
