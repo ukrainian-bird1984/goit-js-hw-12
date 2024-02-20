@@ -9,9 +9,10 @@ const summary = {
     gallery: document.querySelector('.gallery'),
     loader: document.querySelector('.loader'),
     btnElem: document.querySelector('.btn'),
+    searchInput: document.querySelector('.input-name'), // Додали посилання на поле пошуку
 };
 
-const { form, gallery, loader, btnElem } = summary;
+const { form, gallery, loader, btnElem, searchInput } = summary;
 
 loader.classList.add('hidden');
 
@@ -28,14 +29,14 @@ const searchParams = {
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    searchParams.q = e.target.elements.input.value.trim();
+    searchParams.q = searchInput.value.trim();
 
     if (!navigator.onLine) {
         showConnectionErrorMessage();
         return;
     }
 
-    if (!searchParams.q || /^\s*$/.test(searchParams.q)) {
+    if (!searchParams.q) {
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
@@ -54,6 +55,10 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
+});
+
+searchInput.addEventListener('input', () => {
+    searchInput.value = searchInput.value.trim();
 });
 
 btnElem.addEventListener('click', async () => {
