@@ -30,14 +30,10 @@ form.addEventListener('submit', async (e) => {
     e.preventDefault();
     searchParams.q = e.target.elements.input.value.trim();
 
+    // Явне очищення поля вводу при введенні лише пробілів та натисканні на кнопку search
     if (searchParams.q.trim() === '') {
         e.target.elements.input.value = '';
-        iziToast.show({
-            message: 'Sorry, there are no images matching your search query. Please try again!',
-            backgroundColor: '#125487',
-            messageColor: 'white',
-            messageSize: '25',
-        });
+        showConnectionErrorMessage();  // Виведення повідомлення про відсутність Інтернет-з'єднання
         return;
     }
 
@@ -67,6 +63,7 @@ btnElem.addEventListener('click', async () => {
         behavior: 'smooth',
     });
 
+    // Явне очищення поля вводу при натисканні на кнопку search
     form.elements.input.value = '';
 });
 
@@ -77,6 +74,7 @@ async function getPhotoByName() {
         return response.data;
     } catch (error) {
         if (error.message === 'Network Error') {
+            // Виведення повідомлення про відсутність Інтернет-з'єднання
             showConnectionErrorMessage();
         } else {
             throw error;
