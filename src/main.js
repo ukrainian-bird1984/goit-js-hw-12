@@ -38,7 +38,7 @@ form.addEventListener('submit', async (e) => {
             messageColor: 'white',
             messageSize: '25',
         });
-        searchInput.clear(); // Очистка поля пошуку
+        searchInput.value = ''; // Очистка поля пошуку
         return;
     }
 
@@ -52,7 +52,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.clear(); // Очистка поля пошуку
+    searchInput.value = ''; // Очистка поля пошуку
 });
 
 btnElem.addEventListener('click', async () => {
@@ -64,7 +64,7 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
-    searchInput.clear(); // Очистка поля пошуку
+    searchInput.value = ''; // Очистка поля пошуку
 });
 
 async function getPhotoByName() {
@@ -78,7 +78,7 @@ async function getPhotoByName() {
             title: 'Error',
             message: 'Oops, something went wrong',
         });
-        searchInput.clear(); // Очистка поля пошуку
+        searchInput.value = ''; // Очистка поля пошуку
         return { hits: [] }; // Повертаємо пустий об'єкт для уникнення помилок при обробці hits.length
     }
 }
@@ -113,7 +113,7 @@ function createGallery(images) {
                             <h3>Comments</h3>
                             <p>${image.comments}</p>
                         </div>
-                        <div>
+                        div>
                             <h3>Downloads</h3>
                             <p>${image.downloads}</p>
                         </div>
@@ -134,6 +134,6 @@ function createGallery(images) {
             title: 'Error',
             message: 'Please enter a search query',
         });
-        searchInput.clear(); // Очистка поля пошуку
+        searchInput.value = ''; // Очистка поля пошуку
     }
 }
