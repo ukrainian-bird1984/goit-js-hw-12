@@ -38,6 +38,7 @@ form.addEventListener('submit', async (e) => {
             messageColor: 'white',
             messageSize: '25',
         });
+        searchInput.value = ''; // Очистка поля пошуку
         return;
     }
 
@@ -51,7 +52,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.value = '';
+    searchInput.value = ''; // Очистка поля пошуку
 });
 
 btnElem.addEventListener('click', async () => {
@@ -63,13 +64,23 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
-    searchInput.value = '';
+    searchInput.value = ''; // Очистка поля пошуку
 });
 
 async function getPhotoByName() {
     const urlParams = new URLSearchParams(searchParams);
-    const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
-    return response.data;
+    try {
+        const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
+        return response.data;
+    } catch (error) {
+        console.log('Error fetching data:', error);
+        iziToast.show({
+            title: 'Error',
+            message: 'Oops, something went wrong',
+        });
+        searchInput.value = ''; // Очистка поля пошуку
+        return { hits: [] }; // Повертаємо пустий об'єкт для уникнення помилок при обробці hits.length
+    }
 }
 
 function createGallery(images) {
@@ -116,6 +127,13 @@ function createGallery(images) {
 
     let lightBox = new SimpleLightbox;
 
-    // Очищення поля пошуку
-    searchInput.value = '';
+    const searchQuery = searchInput.value.trim();
+
+    if (searchQuery === '') {
+        iziToast.show({
+            title: 'Error',
+            message: 'Please enter a search query',
+        });
+        searchInput.value = ''; // Очистка поля пошуку
+    }
 }
