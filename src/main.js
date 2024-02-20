@@ -51,7 +51,7 @@ form.addEventListener('submit', async (e) => {
     createGallery(images);
     checkBtnStatus();
     e.target.reset();
-    searchInput.value = ''; 
+    searchInput.value = '';
 });
 
 btnElem.addEventListener('click', async () => {
@@ -63,7 +63,7 @@ btnElem.addEventListener('click', async () => {
         top: 465,
         behavior: 'smooth',
     });
-    searchInput.value = ''; 
+    searchInput.value = '';
 });
 
 async function getPhotoByName() {
@@ -79,8 +79,7 @@ function createGallery(images) {
             backgroundColor: '#125487',
             messageColor: 'white',
             messageSize: '25',
-        })
-    };
+        });
 
         btnElem.classList.add('hidden');
     } else {
@@ -127,4 +126,5 @@ function createGallery(images) {
         return;
     }
 
-searchInput.value = ''; 
+    searchInput.value = '';
+}
