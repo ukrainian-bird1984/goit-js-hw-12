@@ -22,6 +22,7 @@ const searchParams = {
     safesearch: true,
     per_page: 15,
     page: 1,
+    totalResults: 0,
     q: '',
 };
 
@@ -75,8 +76,11 @@ async function getPhotoByName() {
         const response = await axios.get(`https://pixabay.com/api/?${urlParams}`);
         return response.data;
     } catch (error) {
-        showConnectionErrorMessage();
-        throw error;
+        if (error.message === 'Network Error') {
+            showConnectionErrorMessage();
+        } else {
+            throw error;
+        }
     }
 }
 
