@@ -9,10 +9,9 @@ const summary = {
     gallery: document.querySelector('.gallery'),
     loader: document.querySelector('.loader'),
     btnElem: document.querySelector('.btn'),
-    searchInput: document.querySelector('.input-name'),
 };
 
-const { form, gallery, loader, btnElem, searchInput } = summary;
+const { form, gallery, loader, btnElem } = summary;
 
 loader.classList.add('hidden');
 
@@ -27,10 +26,6 @@ const searchParams = {
     q: '',
 };
 
-searchInput.addEventListener('input', (e) => {
-    searchParams.q = e.target.value.trim();
-});
-
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     searchParams.q = e.target.elements.input.value.trim();
@@ -40,7 +35,7 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    if (!searchParams.q || /^\s*$/.test(searchParams.q)) {
+    if (!searchParams.q) {
         iziToast.show({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             backgroundColor: '#125487',
