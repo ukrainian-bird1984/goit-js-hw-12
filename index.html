@@ -3,26 +3,34 @@
 
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/goit-js-hw-12/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vanilla App Template</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet" />
   
-  
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Raleway:wght@700&display=swap"
-    rel="stylesheet" />
-  <title>Homework-12</title>
   <script type="module" crossorigin src="/goit-js-hw-12/commonHelpers.js"></script>
-  <link rel="stylesheet" href="/goit-js-hw-12/assets/index-6558a427.css">
+  <link rel="modulepreload" crossorigin href="/goit-js-hw-12/assets/vendor-db5ad915.js">
+  <link rel="stylesheet" href="/goit-js-hw-12/assets/vendor-cf6910df.css">
+  <link rel="stylesheet" href="/goit-js-hw-12/assets/index-6b5e8b14.css">
 </head>
 
 <body>
   <form class="form">
-    <input type="text" class="form-input" name="input" placeholder="Search images..." />
-    <button type="submit" class="form-btn">Search</button>
+    <label class="input-label">
+      <input class="input-name" name="input-name" placeholder="Search images..." required />
+    </label>
+    <button class="search-btn" type="submit">Search</button>
   </form>
-  <div class="gallery"></div>
-  <div class="wrapper-btn">
-    <button type="button" class="btn hidden">Load more</button>
+
+  <ul class="gallery"></ul>
+
+  <div class="loader-container">
+    <span class="loader"></span>
+    <button class="load-btn">Load more</button>
   </div>
-  <span class="loader"></span>
+
   
 </body>
 
